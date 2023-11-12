@@ -140,11 +140,3 @@ for k in range(2, 25):
     print(f"Score Silhouette du modèle KMeans++: {KMeansplusplus_inst.silhouette}")
     soft_kmeans_inst.compute_silhouette()
     print(f"Score Silhouette du modèle Soft KMeans: {soft_kmeans_inst.silhouette}")
-
-
-
-KMeans_inst = KMeans(data=X, k=k)
-KMeans_inst.data
-
-
-
