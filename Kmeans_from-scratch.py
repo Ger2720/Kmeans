@@ -143,8 +143,4 @@ for k in range(2, 25):
 
 
 
-KMeans_inst = KMeans(data=X, k=k)
-KMeans_inst.data
-
-
 
