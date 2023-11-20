@@ -1,5 +1,8 @@
 import numpy as np
+import pandas as pd
 from sklearn.datasets import make_blobs
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 class KMeans:
     def __init__(self, data, k=3, random_state=42, init='kmeans', debug=False):
@@ -121,22 +124,62 @@ class KMeans:
         self.silhouette = np.mean(silhouette, axis=0)
         return self.silhouette
 
+    def visualize_data(self):
+        palette = sns.color_palette("husl", self.k)
 
 
-X, y = make_blobs(n_samples=10000, centers=10, cluster_std=20, random_state=0)
+        plt.figure(figsize=(8, 6))
+        if self.data.shape[1] == 2:
+            for k in range(self.k):
+                plt.scatter(self.data[self.labels == k, 0], self.data[self.labels == k, 1], color=palette[k], label=f"Cluster {k+1}")
+
+            plt.title(f"{self.k} Clusters/Modèle {self.init}")
+            plt.xlabel('Axe X')
+            plt.ylabel('Axe Y')
+            plt.legend()
+            plt.show()
 
 
-for k in range(2, 25):
-    print(f"Essai avec {k} clusters")
-    KMeans_inst = KMeans(data=X, k=k)
-    KMeansplusplus_inst = KMeans(data=X, k=k, init='kmeans++')
-    soft_kmeans_inst = KMeans(data=X, k=k, init= 'soft_kmeans')
-    KMeans_inst.fit()
-    KMeansplusplus_inst.fit()
-    soft_kmeans_inst.fit()
-    KMeans_inst.compute_silhouette()
-    print(f"Score Silhouette du modèle KMeans basique: {KMeans_inst.silhouette}")
-    KMeansplusplus_inst.compute_silhouette()
-    print(f"Score Silhouette du modèle KMeans++: {KMeansplusplus_inst.silhouette}")
-    soft_kmeans_inst.compute_silhouette()
-    print(f"Score Silhouette du modèle Soft KMeans: {soft_kmeans_inst.silhouette}")
+
+#X, y = make_blobs(n_samples=10000, centers=10, cluster_std=20, random_state=0)
+
+
+def testing(data, data_name, min_k, max_k):
+
+    scores_silhouette_kmeans = []
+    scores_silhouette_kmeansplusplus = []
+    scores_silhouette_softkmeans = []
+    for k in range(min_k, max_k):
+        print(f"Essai avec {k} clusters")
+        KMeans_inst = KMeans(data=data, k=k)
+        KMeansplusplus_inst = KMeans(data=data, k=k, init='kmeans++')
+        soft_kmeans_inst = KMeans(data=data, k=k, init='soft_kmeans')
+
+        KMeans_inst.fit()
+        KMeansplusplus_inst.fit()
+        soft_kmeans_inst.fit()
+
+        KMeans_inst.compute_silhouette()
+        print(f"Score Silhouette du modèle KMeans basique: {KMeans_inst.silhouette}")
+        KMeansplusplus_inst.compute_silhouette()
+        print(f"Score Silhouette du modèle KMeans++: {KMeansplusplus_inst.silhouette}")
+        soft_kmeans_inst.compute_silhouette()
+        print(f"Score Silhouette du modèle Soft KMeans: {soft_kmeans_inst.silhouette}")
+
+        scores_silhouette_kmeans.append(KMeans_inst.silhouette)
+        scores_silhouette_kmeansplusplus.append(KMeansplusplus_inst.silhouette)
+        scores_silhouette_softkmeans.append(soft_kmeans_inst.silhouette)
+
+    clusters = range(min_k, max_k)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(clusters, scores_silhouette_kmeans, label='KMeans')
+    plt.plot(clusters, scores_silhouette_kmeansplusplus, label='KMeans++')
+    plt.plot(clusters, scores_silhouette_softkmeans, label='Soft KMeans')
+
+    plt.title(f"Evolution du Score Silhouette en fonction du Nombre de Clusters pour le dataset {data_name}")
+    plt.xlabel('Nombre de Clusters')
+    plt.ylabel('Score Silhouette')
+    plt.legend()
+
+    plt.show()
